@@ -1,0 +1,9 @@
+*logs*
+*data*
+*__pycache__*
+logs
+loggers
+mnist_test
+other
+pytorch_sigopt
+requirements.txt
