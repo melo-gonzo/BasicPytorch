@@ -20,19 +20,31 @@ class CIFAR10DataModule(LightningDataModule):
         self.data_dir = data_dir
         self.batch_size = batch_size
         self.num_classes = 10
-        self.train_transform = transforms.Compose([
-            transforms.RandomCrop(32, padding=4),
-            transforms.RandomHorizontalFlip(),
-            transforms.ToTensor(),
-            transforms.Normalize((0.4914, 0.4822, 0.4465),
-                                 (0.2023, 0.1994, 0.2010)),
-        ])
-
-        self.test_transform = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize((0.4914, 0.4822, 0.4465),
-                                 (0.2023, 0.1994, 0.2010)),
-        ])
+        scale = 1
+        self.train_transform = torchvision.transforms.Compose(
+            [
+                torchvision.transforms.Resize(
+                    (int(256/scale), int(256/scale))),
+                torchvision.transforms.RandomCrop(
+                    (int(224/scale), int(224/scale))),
+                torchvision.transforms.ToTensor(),
+                torchvision.transforms.Normalize(
+                    mean=[0.485, 0.456, 0.406],
+                    std=[0.229, 0.244, 0.225]),
+            ]
+        )
+        self.test_transform = torchvision.transforms.Compose(
+            [
+                torchvision.transforms.Resize(
+                    (int(256/scale), int(256/scale))),
+                torchvision.transforms.CenterCrop(
+                    (int(224/scale), int(224/scale))),
+                torchvision.transforms.ToTensor(),
+                torchvision.transforms.Normalize(
+                    mean=[0.485, 0.456, 0.406],
+                    std=[0.229, 0.244, 0.225]),
+            ]
+        )
 
     def prepare_data(self):
         CIFAR10(self.data_dir, train=True, download=True)
@@ -131,4 +143,4 @@ if __name__ == "__main__":
         parser_kwargs={"error_handler": None},
     )
 
-# python -m main_resnet fit--config ./test.yml
+# python -m main_resnet fit --config ./test.yml
