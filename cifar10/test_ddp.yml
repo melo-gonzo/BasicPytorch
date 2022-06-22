@@ -14,10 +14,10 @@ lr_scheduler:
 trainer:
   max_epochs: 100
   accelerator: "gpu"
-  gpus: 1
+  gpus: 4
   num_nodes: 1
   enable_checkpointing: False
-  strategy: null
+  strategy: ddp
   callbacks:
     - class_path: pytorch_lightning.callbacks.EarlyStopping
       init_args:
@@ -29,4 +29,4 @@ seed_everything: 42
 
 # python -m main_cli fit --config ./test.yml
 # python -m main fit --config ./test.yml
-
+# python -m main_resnet fit --config ./test_ddp.yml

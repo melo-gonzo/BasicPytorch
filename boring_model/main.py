@@ -90,8 +90,6 @@ class BoringModel(LightningModule):
         return self.model(x)
 
     def training_step(self, batch, batch_idx):
-        import pdb
-        pdb.set_trace()
         loss = self(batch).sum()
         self.log("train_loss", loss, prog_bar=True)
         return {"loss": loss}

@@ -172,4 +172,4 @@ if __name__ == "__main__":
         parser_kwargs={"error_handler": None},
     )
 
-# python -m main fit--config ./test.yml
+# python -m main fit --config ./test.yml
