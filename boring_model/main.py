@@ -13,8 +13,6 @@ from pytorch_lightning import LightningModule
 from pytorch_lightning.utilities.cli import LightningCLI
 from torch.utils.data import DataLoader, Dataset
 import torchmetrics
-import pretty_errors
-
 
 class RandomDataset(Dataset):
     def __init__(self, size, length):
@@ -67,7 +65,7 @@ class BoringModel(LightningModule):
         channels: int = 32,
         hidden_dim: int = 64,
         depth: int = 2,
-        activation: str = "ReLU",
+        activation: str = "ReLU"
     ):
         super().__init__()
         self.channels = channels

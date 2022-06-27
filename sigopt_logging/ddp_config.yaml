@@ -16,15 +16,20 @@ lr_scheduler:
  init_args:
    gamma: 0.1
 trainer:
- max_epochs: 100
+ max_epochs: 3
  enable_checkpointing: False
  accelerator: "gpu"
  strategy: ddp
- gpus: 4
+ gpus: 2
+#  logger:
+#  - class_path: pytorch_lightning.loggers.CSVLogger
+#    init_args:
+#      save_dir: logs
+#      name: csv-logger
  logger:
  - class_path: loggers.SigOptLogger
    init_args:
      save_dir: logs
-     name: boring-model-3
+     name: egnnfull101
      config_path: ./loggers/sigopt_params.yaml
 seed_everything: 42
