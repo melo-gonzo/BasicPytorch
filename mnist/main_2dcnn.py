@@ -13,7 +13,7 @@ import torchmetrics
 from torchvision import transforms
 from torchvision.datasets import CIFAR10, MNIST
 from pytorch_lightning.utilities.cli import LightningCLI
-
+import yaml
 
 PATH_DATASETS = "./data"  # os.environ.get("PATH_DATASETS", ".")
 BATCH_SIZE = 256 if torch.cuda.is_available() else 64
@@ -48,7 +48,6 @@ class MNISTDataModule(LightningDataModule):
                 transforms.ToTensor(),
                 custom_augmentation(),
                 transforms.Normalize((0.1307,), (0.3081,)),
-
             ]
         )
         self.dims = (1, 28, 28)
@@ -171,13 +170,21 @@ class CLI(LightningCLI):
 
 if __name__ == "__main__":
     start_time = time.time()
-    cli = CLI(
-        LitModel,
-        MNISTDataModule,
-        save_config_callback=None,
-        parser_kwargs={"error_handler": None},
-    )
+    with open("./config.yaml", 'r') as stream:
+        config=yaml.safe_load(stream)
+
+    model = LitModel(**config['model'])
+    datamodule=MNISTDataModule(**config['data'])
+    trainer = Trainer(**config['trainer'])
+    trainer.fit(model, datamodule)
+
+#    cli = CLI(
+#        LitModel,
+#        MNISTDataModule,
+#        save_config_callback=None,
+#        parser_kwargs={"error_handler": None},
+#    )
     end_time = torch.round(torch.tensor(time.time()-start_time)).item()
     print(F"5 Epoch Time: {end_time} seconds")
 
-# python -m main fit --config ./test.yml
+# python -m main fit --config ./config.yml
