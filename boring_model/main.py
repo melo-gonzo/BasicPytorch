@@ -133,3 +133,6 @@ if __name__ == "__main__":
         save_config_callback=None,
         parser_kwargs={"error_handler": None},
     )
+
+# python -m main fit --config ./config.yaml
+# python -m main fit --config ./ddp_config.yaml
