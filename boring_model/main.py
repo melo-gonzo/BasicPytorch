@@ -13,8 +13,6 @@ from pytorch_lightning import LightningModule
 from pytorch_lightning.utilities.cli import LightningCLI
 from torch.utils.data import DataLoader, Dataset
 import torchmetrics
-import pretty_errors
-
 
 class RandomDataset(Dataset):
     def __init__(self, size, length):
@@ -67,7 +65,7 @@ class BoringModel(LightningModule):
         channels: int = 32,
         hidden_dim: int = 64,
         depth: int = 2,
-        activation: str = "ReLU",
+        activation: str = "ReLU"
     ):
         super().__init__()
         self.channels = channels
@@ -90,8 +88,6 @@ class BoringModel(LightningModule):
         return self.model(x)
 
     def training_step(self, batch, batch_idx):
-        import pdb
-        pdb.set_trace()
         loss = self(batch).sum()
         self.log("train_loss", loss, prog_bar=True)
         return {"loss": loss}
@@ -137,3 +133,6 @@ if __name__ == "__main__":
         save_config_callback=None,
         parser_kwargs={"error_handler": None},
     )
+
+# python -m main fit --config ./config.yaml
+# python -m main fit --config ./ddp_config.yaml

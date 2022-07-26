@@ -7,3 +7,7 @@ mnist_test
 other
 pytorch_sigopt
 requirements.txt
+*failed_scripts*
+*current_sigopt_config*
+*setup_sigopt*
+.vscode
