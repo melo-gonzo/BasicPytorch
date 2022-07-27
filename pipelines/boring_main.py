@@ -3,7 +3,7 @@ import sys
 sys.path.append('..')
 
 import yaml
-from datasets import RandomDataModule
+from data_modules import RandomDataModule
 from models import BoringModel
 from pytorch_lightning import Trainer
 
@@ -11,7 +11,7 @@ from pytorch_lightning import Trainer
 
 if __name__ == "__main__":
 
-    with open("./config.yaml", 'r') as stream:
+    with open("../configs/boring_model_config.yaml", 'r') as stream:
         config=yaml.safe_load(stream)
 
     model = BoringModel(**config['model'])

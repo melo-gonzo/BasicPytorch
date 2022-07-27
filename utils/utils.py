@@ -1,9 +1,7 @@
 import operator
-import sys
-# from argparse import ArgumentParsern
 from functools import reduce
 from types import SimpleNamespace
-from typing import Dict, Optional, Union
+from typing import Dict, Union
 
 import yaml
 

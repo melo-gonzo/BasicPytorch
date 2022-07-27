@@ -1,7 +1,7 @@
 model:
   num_classes: 10
 data:
-  data_dir: ./data
+  data_dir: ../data
   batch_size: 256
 optimizer:
   class_path: torch.optim.adam.Adam
@@ -14,7 +14,7 @@ lr_scheduler:
 trainer:
   max_epochs: 100
   accelerator: "gpu"
-  gpus: 4
+  gpus: 2
   num_nodes: 1
   enable_checkpointing: False
   strategy: ddp
@@ -24,6 +24,7 @@ trainer:
         patience: 5
         monitor: val_loss
         mode: min
+        verbose: true
 seed_everything: 42
 
 

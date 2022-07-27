@@ -1,17 +1,9 @@
-import os
-import torchvision
+
 import torch
 import torch.nn.functional as F
-from pytorch_lightning import LightningDataModule, LightningModule, Trainer
-from pytorch_lightning.callbacks.progress import TQDMProgressBar
+from pytorch_lightning import LightningModule
 from torch import nn
-from torch.utils.data import DataLoader, random_split
-# from torchmetrics.functional import accuracy
 import torchmetrics
-from torchvision import transforms
-from torchvision.datasets import CIFAR10
-from pytorch_lightning.utilities.cli import LightningCLI
-import torchvision.models as models
 
 
 class Lit2DCNN(LightningModule):

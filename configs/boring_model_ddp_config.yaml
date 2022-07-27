@@ -16,10 +16,10 @@ lr_scheduler:
  init_args:
    gamma: 0.1
 trainer:
- max_epochs: 100
+ max_epochs: 10
  enable_checkpointing: False
  accelerator: "gpu"
  strategy: ddp
- gpus: 4
+ gpus: 2
 
 seed_everything: 42
