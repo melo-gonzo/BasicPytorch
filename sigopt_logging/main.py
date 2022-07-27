@@ -6,7 +6,7 @@ import torch
 import traceback
 
 sys.path.append("..")
-from boring_model.main import RandomDataModule, RandomDataset, BoringModel
+from boring_model.boirng_main import RandomDataModule, RandomDataset, BoringModel
 from utils.utils import *
 
 # from loggers import SigOptLogger

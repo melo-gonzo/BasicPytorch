@@ -1,5 +1,7 @@
+import matplotlib.pyplot as plt
 import os
-import torchvision
+import time
+
 import torch
 import torch.nn.functional as F
 from pytorch_lightning import LightningDataModule, LightningModule, Trainer
@@ -9,69 +11,65 @@ from torch.utils.data import DataLoader, random_split
 # from torchmetrics.functional import accuracy
 import torchmetrics
 from torchvision import transforms
-from torchvision.datasets import CIFAR10
+from torchvision.datasets import CIFAR10, MNIST
 from pytorch_lightning.utilities.cli import LightningCLI
-import torchvision.models as models
+import yaml
 
 
-class Lit2DCNN(LightningModule):
+class Basic2DCNN(LightningModule):
     def __init__(
         self, channels, width, height, num_classes, hidden_size=64, learning_rate=2e-4
     ):
         super().__init__()
+        # We take in input dimensions as parameters and use those to dynamically build model.
+        self.channels = channels
+        self.width = width
+        self.height = height
+        self.num_classes = num_classes
         self.hidden_size = hidden_size
         self.learning_rate = learning_rate
         self.train_accuracy = torchmetrics.Accuracy()
         self.val_accuracy = torchmetrics.Accuracy()
-        # build model
-        self.c1 = nn.Conv2d(in_channels=3, out_channels=32,
-                            kernel_size=3, padding=(1, 1), stride=1)
-        self.c2 = nn.Conv2d(32, 64, 3, padding=(1, 1))
-        self.bn1 = nn.BatchNorm2d(64)
-        self.pool1 = nn.MaxPool2d(
-            kernel_size=2, stride=2, padding=0, dilation=1, ceil_mode=False)  # 16x16
-        self.c3 = nn.Conv2d(64, 64, 3, padding=(1, 1))
-        self.c4 = nn.Conv2d(64, 64, 3, padding=(1, 1))
-        self.bn2 = nn.BatchNorm2d(64)
-        self.pool2 = nn.MaxPool2d(
-            kernel_size=2, stride=2, padding=0, dilation=1, ceil_mode=False)  # 8x8
-        self.c_d1 = nn.Linear(in_features=8*8*64,
-                              out_features=256)
-        self.c_d1_bn = nn.BatchNorm1d(256)
-        self.c_d1_drop = nn.Dropout(0.5)
+        self.loss = nn.CrossEntropyLoss()
+        L1_filters = 32
+        L2_filters = 64
 
-        self.c_d2 = nn.Linear(in_features=256,
-                              out_features=10)
+        self.cnn_layers = nn.Sequential(
+            # Defining a 2D convolution layer
+            nn.Conv2d(1, L1_filters, kernel_size=3, stride=1, padding=1),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(L1_filters, L2_filters,
+                      kernel_size=3, stride=1, padding=1),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=2, stride=1),
+        )
+        self.fc = nn.Sequential(
+            nn.Linear(L2_filters * int(280/SCALE - 1) * int(280/SCALE - 1), 10)
+        )
 
+    # Defining the forward pass
     def forward(self, x):
-        x = F.relu(self.c1(x))
-        x = F.relu(self.c2(x))
-        x = self.pool1(x)  # 16
-        x = F.relu(self.c3(x))
-        x = F.relu(self.c4(x))
-        x = self.pool2(x)  # 8
-
-        batch_size = x.size(0)
-        x = F.relu(self.c_d1(x.view(batch_size, -1)))
-        x = self.c_d1_bn(x)
-        x = self.c_d1_drop(x)
-
-        x = self.c_d2(x)
-        logits = F.log_softmax(x, dim=1)
-        return logits
+        x = self.cnn_layers(x)
+        x = x.view(x.size(0), -1)
+        x = self.fc(x)
+        return x
 
     def training_step(self, batch, batch_idx):
         x, y = batch
         logits = self(x)
-        loss = F.nll_loss(logits, y)
+        loss = self.loss(logits, y)
         accuracy = self.train_accuracy(logits, y)
         self.log("train_acc", accuracy, prog_bar=True)
+        # n = 2
+        # a = x[n, 0, :, :]
+        # plt.imshow(a.cpu())
+        # plt.show()
         return loss
 
     def test_step(self, batch, batch_idx):
         x, y = batch
         logits = self(x)
-        loss = F.nll_loss(logits, y)
+        loss = self.loss(logits, y)
         preds = torch.argmax(logits, dim=1)
         acc = self.val_accuracy(preds, y)
         self.log("test_loss", loss, prog_bar=True)
@@ -85,7 +83,7 @@ class Lit2DCNN(LightningModule):
     def validation_step(self, batch, batch_idx):
         x, y = batch
         logits = self(x)
-        loss = F.nll_loss(logits, y)
+        loss = self.loss(logits, y)
         preds = torch.argmax(logits, dim=1)
         acc = self.val_accuracy(preds, y)
         self.log("val_loss", loss, prog_bar=True)

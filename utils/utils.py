@@ -51,3 +51,19 @@ def dict_to_namespace(d):
         for k, v in d.items()
     ]
     return x
+
+
+class custom_augmentation(object):
+    def __init__(self):
+        pass
+
+    def __call__(self, img):
+        fft = torch.fft.fft2(img[0, :, :])
+        angle = fft.angle()
+        amp = fft.abs()
+        img[0, :, :] = torch.mul(amp, angle)
+        # img = transforms.functional.equalize(img.byte()).float()
+        return img
+
+    def __repr__(self):
+        return "custom augmentation"

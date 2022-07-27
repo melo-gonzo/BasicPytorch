@@ -14,49 +14,26 @@ from pytorch_lightning.utilities.cli import LightningCLI
 import torchvision.models as models
 
 
-class Lit2DCNN(LightningModule):
-    def __init__(
-        self, channels, width, height, num_classes, hidden_size=64, learning_rate=2e-4
-    ):
+
+class LitModel(LightningModule):
+    def __init__(self, num_classes: int = 10):
         super().__init__()
-        self.hidden_size = hidden_size
-        self.learning_rate = learning_rate
         self.train_accuracy = torchmetrics.Accuracy()
         self.val_accuracy = torchmetrics.Accuracy()
         # build model
-        self.c1 = nn.Conv2d(in_channels=3, out_channels=32,
-                            kernel_size=3, padding=(1, 1), stride=1)
-        self.c2 = nn.Conv2d(32, 64, 3, padding=(1, 1))
-        self.bn1 = nn.BatchNorm2d(64)
-        self.pool1 = nn.MaxPool2d(
-            kernel_size=2, stride=2, padding=0, dilation=1, ceil_mode=False)  # 16x16
-        self.c3 = nn.Conv2d(64, 64, 3, padding=(1, 1))
-        self.c4 = nn.Conv2d(64, 64, 3, padding=(1, 1))
-        self.bn2 = nn.BatchNorm2d(64)
-        self.pool2 = nn.MaxPool2d(
-            kernel_size=2, stride=2, padding=0, dilation=1, ceil_mode=False)  # 8x8
-        self.c_d1 = nn.Linear(in_features=8*8*64,
-                              out_features=256)
-        self.c_d1_bn = nn.BatchNorm1d(256)
-        self.c_d1_drop = nn.Dropout(0.5)
-
-        self.c_d2 = nn.Linear(in_features=256,
-                              out_features=10)
+        model = models.resnet50(pretrained=True)
+        num_filters = model.fc.in_features
+        layers = list(model.children())[:-1]
+        self.backbone = nn.Sequential(*layers)
+        # use the pretrained model to classify cifar-10 (10 image classes)
+        num_target_classes = num_classes
+        self.classifier = nn.Linear(num_filters, num_target_classes)
 
     def forward(self, x):
-        x = F.relu(self.c1(x))
-        x = F.relu(self.c2(x))
-        x = self.pool1(x)  # 16
-        x = F.relu(self.c3(x))
-        x = F.relu(self.c4(x))
-        x = self.pool2(x)  # 8
-
+        x = self.backbone(x)
         batch_size = x.size(0)
-        x = F.relu(self.c_d1(x.view(batch_size, -1)))
-        x = self.c_d1_bn(x)
-        x = self.c_d1_drop(x)
-
-        x = self.c_d2(x)
+        x = F.relu(x.view(batch_size, -1))
+        x = self.classifier(x)
         logits = F.log_softmax(x, dim=1)
         return logits
 
@@ -97,3 +74,14 @@ class Lit2DCNN(LightningModule):
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
         return optimizer
+
+
+if __name__ == "__main__":
+    cli = LightningCLI(
+        LitModel,
+        CIFAR10DataModule,
+        save_config_callback=None,
+        parser_kwargs={"error_handler": None},
+    )
+
+# python -m main_resnet fit --config ./test.yml
