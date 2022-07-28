@@ -44,7 +44,6 @@ class MNISTDataModule(LightningDataModule):
         self.num_classes = 10
 
     def prepare_data(self):
-        import pdb; pdb.set_trace()
         MNIST(self.data_dir, train=True, download=True)
         MNIST(self.data_dir, train=False, download=True)
 

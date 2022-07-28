@@ -33,6 +33,8 @@ class Basic2DCNN(LightningModule):
         self.loss = nn.CrossEntropyLoss()
         L1_filters = 32
         L2_filters = 64
+        # TODO: fix scale hack
+        SCALE=3.5
 
         self.cnn_layers = nn.Sequential(
             # Defining a 2D convolution layer

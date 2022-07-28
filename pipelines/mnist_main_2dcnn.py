@@ -4,7 +4,7 @@ sys.path.append("..")
 from pytorch_lightning import Trainer
 import torch 
 
-from models import Lit2DCNN
+from models import Basic2DCNN
 from data_modules import MNISTDataModule
 
 import yaml
@@ -15,7 +15,7 @@ if __name__ == "__main__":
     with open("../configs/mnist_config.yaml", "r") as stream:
         config = yaml.safe_load(stream)
 
-    model = Lit2DCNN(**config["model"])
+    model = Basic2DCNN(**config["model"])
     datamodule = MNISTDataModule(**config["data"])
     trainer = Trainer(**config["trainer"])
     trainer.fit(model, datamodule)
